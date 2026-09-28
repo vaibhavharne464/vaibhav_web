@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A beautiful anime wallpaper gallery with search, categories, favorites, and fullscreen preview.">
+<title>AnimeVerse — Wallpaper Gallery</title>
+<style>
+:root{
+  --bg:#080a12; --panel:#111525; --panel2:#171b2d; --text:#f7f7fb; --muted:#a6acc2;
+  --accent:#ff4ecd; --accent2:#6d7cff; --border:rgba(255,255,255,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text); background:
+  radial-gradient(circle at 15% 10%,rgba(109,124,255,.18),transparent 28%),
+  radial-gradient(circle at 85% 15%,rgba(255,78,205,.13),transparent 25%),var(--bg);
+  min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.header{
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(18px);
+  background:rgba(8,10,18,.76);border-bottom:1px solid var(--border);
+}
+.nav{max-width:1250px;margin:auto;padding:16px 22px;display:flex;align-items:center;gap:24px}
+.logo{font-weight:900;font-size:1.25rem;letter-spacing:.5px;white-space:nowrap}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:18px;margin-left:auto}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.92rem}
+.nav-links a:hover{color:#fff}
+.hero{max-width:1250px;margin:auto;padding:72px 22px 40px;display:grid;grid-template-columns:1.1fr .9fr;gap:35px;align-items:center}
+.badge{display:inline-flex;padding:7px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.04);color:#cdd2e8;font-size:.8rem;margin-bottom:18px}
+h1{font-size:clamp(2.7rem,6vw,5.4rem);line-height:.95;letter-spacing:-4px;max-width:760px}
+.gradient{background:linear-gradient(100deg,#fff 15%,#ff78dc 55%,#7f91ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:1.05rem;line-height:1.7;margin:22px 0 28px;max-width:620px}
+.search{display:flex;max-width:650px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:7px;box-shadow:0 15px 50px rgba(0,0,0,.22)}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:white;padding:13px 14px}
+.search button,.primary{border:0;color:white;font-weight:700;border-radius:11px;padding:12px 19px;background:linear-gradient(135deg,var(--accent),var(--accent2));}
+.hero-art{height:420px;border-radius:28px;overflow:hidden;position:relative;background:
+  linear-gradient(145deg,rgba(255,78,205,.22),transparent 40%),
+  linear-gradient(35deg,#14182b,#34214d 50%,#13182b);
+  border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+.hero-art:before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:#ff9adf;filter:blur(3px);opacity:.5;right:15%;top:12%}
+.hero-art:after{content:"✦  ✧  ✦";position:absolute;inset:25px;color:rgba(255,255,255,.5);font-size:28px;letter-spacing:35px}
+.silhouette{position:absolute;bottom:-35px;left:50%;transform:translateX(-50%);width:250px;height:300px;border-radius:48% 48% 10% 10%;background:linear-gradient(150deg,#111321,#05060b);box-shadow:0 0 60px rgba(255,78,205,.35)}
+.silhouette:before{content:"";position:absolute;width:155px;height:155px;border-radius:50%;background:#15182a;top:-82px;left:48px;box-shadow:0 -35px 0 -8px #090b15}
+.section{max-width:1250px;margin:auto;padding:25px 22px 70px}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:22px}
+.categories{display:flex;gap:9px;flex-wrap:wrap}
+.chip{border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:999px}
+.chip.active,.chip:hover{color:white;background:linear-gradient(135deg,rgba(255,78,205,.25),rgba(109,124,255,.25));border-color:rgba(255,255,255,.2)}
+.count{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;position:relative;transition:.25s transform,.25s box-shadow}
+.card:hover{transform:translateY(-5px);box-shadow:0 20px 45px rgba(0,0,0,.35)}
+.thumb{height:290px;position:relative;overflow:hidden;background:#222}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:.4s}
+.card:hover .thumb img{transform:scale(1.05)}
+.overlay{position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.8));opacity:.8}
+.card-body{padding:14px 15px}
+.card-body h3{font-size:.98rem;margin-bottom:5px}
+.card-body small{color:var(--muted)}
+.actions{display:flex;gap:8px;margin-top:12px}
+.action{flex:1;padding:9px;border:1px solid var(--border);background:var(--panel2);color:#fff;border-radius:9px}
+.action:hover{background:#222840}
+.fav{position:absolute;right:11px;top:11px;z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.45);color:white;font-size:18px}
+.fav.active{color:#ff62d6}
+.empty{text-align:center;color:var(--muted);padding:70px 20px;grid-column:1/-1}
+.footer{border-top:1px solid var(--border);padding:28px 22px;text-align:center;color:var(--muted);font-size:.85rem}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;padding:25px}
+.modal.show{display:flex}
+.modal-box{max-width:1050px;width:100%;max-height:92vh;position:relative}
+.modal img{display:block;width:100%;max-height:82vh;object-fit:contain;border-radius:14px}
+.close{position:absolute;right:-8px;top:-48px;border:0;background:#fff;color:#111;width:38px;height:38px;border-radius:50%;font-size:22px}
+.modal-caption{text-align:center;padding:12px;color:#fff}
+@media(max-width:1000px){.hero{grid-template-columns:1fr}.hero-art{height:300px}.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.nav-links{display:none}.hero{padding-top:45px}.grid{grid-template-columns:repeat(2,1fr)}.thumb{height:240px}}
+@media(max-width:470px){.grid{grid-template-columns:1fr}.thumb{height:310px}h1{letter-spacing:-2px}.hero-art{display:none}.search button{padding:11px}}
+</style>
+</head>
+<body>
+<header class="header">
+  <nav class="nav">
+    <div class="logo">Anime<span>Verse</span> ✦</div>
+    <div class="nav-links"><a href="#gallery">Gallery</a><a href="#about">About</a><a href="#" id="favoritesNav">Favorites</a></div>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <div>
+    <div class="badge">✦ 4K-inspired anime collection</div>
+    <h1>Find your next <span class="gradient">dream wallpaper.</span></h1>
+    <p>Explore a curated, responsive anime wallpaper gallery. Search characters and moods, filter categories, save favorites, and preview wallpapers in fullscreen.</p>
+    <div class="search">
+      <input id="searchInput" type="search" placeholder="Search wallpapers, characters, moods..." aria-label="Search wallpapers">
+      <button id="searchBtn">Search</button>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true"><div class="silhouette"></div></div>
+</section>
+
+<section class="section" id="gallery">
+  <div class="toolbar">
+    <div class="categories" id="categories"></div>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</section>
+</main>
+
+<footer class="footer" id="about">AnimeVerse • A single-file HTML/CSS/JS wallpaper gallery demo.</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="close" id="closeModal" aria-label="Close">×</button>
+    <img id="modalImg" alt="">
+    <div class="modal-caption" id="modalCaption"></div>
+  </div>
+</div>
+
+<script>
+const wallpapers = [
+ {id:1,title:"Neon Tokyo Nights",category:"Cyberpunk",tags:"city neon night futuristic",url:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=85"},
+ {id:2,title:"Sakura Dream",category:"Nature",tags:"sakura pink flowers spring",url:"https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1200&q=85"},
+ {id:3,title:"Mountain Spirit",category:"Nature",tags:"mountain mist landscape",url:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=85"},
+ {id:4,title:"Midnight City",category:"Cyberpunk",tags:"city dark lights urban",url:"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=85"},
+ {id:5,title:"Ocean Blue",category:"Scenery",tags:"ocean blue sea calm",url:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85"},
+ {id:6,title:"Autumn Journey",category:"Scenery",tags:"autumn road orange travel",url:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85"},
+ {id:7,title:"Moonlit Forest",category:"Fantasy",tags:"moon forest fantasy night",url:"https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=85"},
+ {id:8,title:"Purple Cosmos",category:"Fantasy",tags:"space purple stars galaxy",url:"https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=85"}
+];
+
+const grid=document.getElementById("grid"), categories=document.getElementById("categories");
+const searchInput=document.getElementById("searchInput"), count=document.getElementById("count");
+const modal=document.getElementById("modal"), modalImg=document.getElementById("modalImg"), modalCaption=document.getElementById("modalCaption");
+let activeCategory="All", query="", favorites=JSON.parse(localStorage.getItem("animeFavorites")||"[]");
+
+const cats=["All",...new Set(wallpapers.map(w=>w.category))];
+cats.forEach(c=>{
+ const b=document.createElement("button"); b.className="chip"+(c==="All"?" active":""); b.textContent=c;
+ b.onclick=()=>{activeCategory=c;document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()};
+ categories.appendChild(b);
+});
+
+function render(){
+ const q=query.toLowerCase().trim();
+ const list=wallpapers.filter(w=>(activeCategory==="All"||w.category===activeCategory)&&(!q||(w.title+" "+w.category+" "+w.tags).toLowerCase().includes(q)));
+ count.textContent=`${list.length} wallpaper${list.length!==1?"s":""}`;
+ grid.innerHTML="";
+ if(!list.length){grid.innerHTML='<div class="empty">No wallpapers found. Try another search or category.</div>';return}
+ list.forEach(w=>{
+   const card=document.createElement("article");card.className="card";
+   const liked=favorites.includes(w.id);
+   card.innerHTML=`
+    <div class="thumb">
+      <img loading="lazy" src="${w.url}" alt="${w.title}">
+      <div class="overlay"></div>
+      <button class="fav ${liked?"active":""}" title="Favorite">${liked?"♥":"♡"}</button>
+    </div>
+    <div class="card-body">
+      <h3>${w.title}</h3><small>${w.category}</small>
+      <div class="actions"><button class="action preview">Preview</button><button class="action download">Download</button></div>
+    </div>`;
+   card.querySelector(".fav").onclick=()=>toggleFavorite(w.id);
+   card.querySelector(".preview").onclick=()=>openModal(w);
+   card.querySelector(".download").onclick=()=>downloadWallpaper(w);
+   grid.appendChild(card);
+ });
+}
+function toggleFavorite(id){
+ favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];
+ localStorage.setItem("animeFavorites",JSON.stringify(favorites));render();
+}
+function openModal(w){modalImg.src=w.url;modalImg.alt=w.title;modalCaption.textContent=w.title+" • "+w.category;modal.classList.add("show")}
+function closeModal(){modal.classList.remove("show")}
+document.getElementById("closeModal").onclick=closeModal;
+modal.onclick=e=>{if(e.target===modal)closeModal()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+
+function downloadWallpaper(w){
+ // Browser security/CORS may prevent direct saving from some remote image hosts.
+ const a=document.createElement("a");a.href=w.url;a.target="_blank";a.rel="noopener";a.download=w.title.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".jpg";a.click();
+}
+function doSearch(){query=searchInput.value;render();document.getElementById("gallery").scrollIntoView({behavior:"smooth"})}
+document.getElementById("searchBtn").onclick=doSearch;
+searchInput.addEventListener("input",()=>{query=searchInput.value;render()});
+document.getElementById("favoritesNav").onclick=e=>{
+ e.preventDefault();activeCategory="All";query="";searchInput.value="";
+ const favs=wallpapers.filter(w=>favorites.includes(w.id));
+ document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x.textContent==="All"));
+ count.textContent=`${favs.length} favorite${favs.length!==1?"s":""}`;
+ grid.innerHTML=favs.length?favs.map(w=>`
+ <article class="card"><div class="thumb"><img src="${w.url}" alt="${w.title}"><div class="overlay"></div><button class="fav active" onclick="toggleFavorite(${w.id})">♥</button></div>
+ <div class="card-body"><h3>${w.title}</h3><small>${w.category}</small><div class="actions"><button class="action" onclick="openModal(wallpapers.find(x=>x.id===${w.id}))">Preview</button><button class="action" onclick="downloadWallpaper(wallpapers.find(x=>x.id===${w.id}))">Download</button></div></div></article>`).join(""):'<div class="empty">You have no favorites yet. Click the ♡ button on a wallpaper to save it.</div>';
+ document.getElementById("gallery").scrollIntoView({behavior:"smooth"});
+};
+render();
+</script>
+</body>
+</html>
